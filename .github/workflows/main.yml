@@ -10,6 +10,13 @@ jobs:
     steps:
       - name: Download rdp-node.ps1
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Random delay before execution
+        run: |
+          $delay = Get-Random -Minimum 5 -Maximum 60
+          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 1..."
+          Start-Sleep -Seconds $delay
+
       - name: Execute RDP Node 1
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
@@ -21,6 +28,13 @@ jobs:
     steps:
       - name: Download rdp-node.ps1
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Random delay before execution
+        run: |
+          $delay = Get-Random -Minimum 5 -Maximum 60
+          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 2..."
+          Start-Sleep -Seconds $delay
+
       - name: Execute RDP Node 2
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
@@ -32,6 +46,13 @@ jobs:
     steps:
       - name: Download rdp-node.ps1
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Random delay before execution
+        run: |
+          $delay = Get-Random -Minimum 5 -Maximum 60
+          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 3..."
+          Start-Sleep -Seconds $delay
+
       - name: Execute RDP Node 3
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
@@ -43,6 +64,13 @@ jobs:
     steps:
       - name: Download rdp-node.ps1
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Random delay before execution
+        run: |
+          $delay = Get-Random -Minimum 5 -Maximum 60
+          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 4..."
+          Start-Sleep -Seconds $delay
+
       - name: Execute RDP Node 4
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
