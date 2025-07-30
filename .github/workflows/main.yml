@@ -1,42 +1,58 @@
-name: Sequential RDP Nodes
+name: Multi RDP Nodes (Staggered Start)
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy-sequential:
+  rdp-node-1:
     runs-on: windows-latest
     timeout-minutes: 290
-
     steps:
       - name: Download rdp-node.ps1
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Launch RDP Node 1
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1 -NodeID "Node 1"
+      - name: Start RDP Node 1
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
 
+  rdp-node-2:
+    runs-on: windows-latest
+    needs: rdp-node-1
+    timeout-minutes: 290
+    steps:
       - name: Wait 30 seconds before Node 2
         run: Start-Sleep -Seconds 30
-
-      - name: Launch RDP Node 2
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1 -NodeID "Node 2"
+      - name: Download rdp-node.ps1
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: Start RDP Node 2
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
 
+  rdp-node-3:
+    runs-on: windows-latest
+    needs: rdp-node-2
+    timeout-minutes: 290
+    steps:
       - name: Wait 30 seconds before Node 3
         run: Start-Sleep -Seconds 30
-
-      - name: Launch RDP Node 3
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1 -NodeID "Node 3"
+      - name: Download rdp-node.ps1
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: Start RDP Node 3
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
 
+  rdp-node-4:
+    runs-on: windows-latest
+    needs: rdp-node-3
+    timeout-minutes: 290
+    steps:
       - name: Wait 30 seconds before Node 4
         run: Start-Sleep -Seconds 30
-
-      - name: Launch RDP Node 4
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1 -NodeID "Node 4"
+      - name: Download rdp-node.ps1
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: Start RDP Node 4
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
