@@ -1,0 +1,43 @@
+name: Multi RDP Nodes (Parallel Launch)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rdp-node:
+    runs-on: windows-latest
+    timeout-minutes: 290
+    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        node: [1, 2, 3, 4]
+        attempt: [1, 2]  # Retry each node job once on failure
+
+    steps:
+      - name: 🛰️ Assign random ngrok region
+        id: region
+        shell: pwsh
+        run: |
+          $regions = @("us", "eu", "ap", "au", "sa", "jp", "in")
+          $selected = Get-Random -InputObject $regions
+          Write-Host "🎯 Selected region: $selected"
+          "REGION=$selected" | Out-File -Append -FilePath $env:GITHUB_ENV
+
+      - name: 📥 Download rdp-node.ps1
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: ⏱️ Random startup delay
+        run: |
+          $delay = Get-Random -Minimum 15 -Maximum 120
+          Write-Host "🕒 Delaying $delay seconds before starting RDP Node ${{ matrix.node }}..."
+          Start-Sleep -Seconds $delay
+
+      - name: 🚀 Launch RDP Node ${{ matrix.node }}
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          REGION: ${{ env.REGION }}
+          
