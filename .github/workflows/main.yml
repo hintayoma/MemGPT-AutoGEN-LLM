@@ -1,4 +1,4 @@
-name: Multi RDP Nodes (Parallel Launch)
+name: Multi -1st Attempt
 
 on:
   workflow_dispatch:
