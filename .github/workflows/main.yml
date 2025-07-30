@@ -12,8 +12,9 @@ jobs:
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
       - name: Random delay before execution
+        shell: pwsh
         run: |
-          $delay = Get-Random -Minimum 5 -Maximum 60
+          $delay = Get-Random -Minimum 15 -Maximum 120
           Write-Host "🕒 Delaying $delay seconds before starting RDP Node 1..."
           Start-Sleep -Seconds $delay
 
@@ -30,8 +31,9 @@ jobs:
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
       - name: Random delay before execution
+        shell: pwsh
         run: |
-          $delay = Get-Random -Minimum 5 -Maximum 60
+          $delay = Get-Random -Minimum 15 -Maximum 120
           Write-Host "🕒 Delaying $delay seconds before starting RDP Node 2..."
           Start-Sleep -Seconds $delay
 
@@ -48,8 +50,9 @@ jobs:
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
       - name: Random delay before execution
+        shell: pwsh
         run: |
-          $delay = Get-Random -Minimum 5 -Maximum 60
+          $delay = Get-Random -Minimum 15 -Maximum 120
           Write-Host "🕒 Delaying $delay seconds before starting RDP Node 3..."
           Start-Sleep -Seconds $delay
 
@@ -66,8 +69,9 @@ jobs:
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
       - name: Random delay before execution
+        shell: pwsh
         run: |
-          $delay = Get-Random -Minimum 5 -Maximum 60
+          $delay = Get-Random -Minimum 15 -Maximum 120
           Write-Host "🕒 Delaying $delay seconds before starting RDP Node 4..."
           Start-Sleep -Seconds $delay
 
