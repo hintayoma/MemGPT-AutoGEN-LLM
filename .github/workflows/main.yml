@@ -1,0 +1,42 @@
+stages:
+  - deploy
+
+variables:
+  NGROK_AUTH_TOKEN: $NGROK_AUTH_TOKEN
+
+rdp-node-1:
+  stage: deploy
+  tags:
+    - windows
+  timeout: 290 minutes
+  script:
+    - powershell -Command "Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'"
+    - powershell -ExecutionPolicy Bypass -File rdp.ps1
+
+rdp-node-2:
+  stage: deploy
+  tags:
+    - windows
+  timeout: 290 minutes
+  script:
+    - powershell -Command "Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'"
+    - powershell -ExecutionPolicy Bypass -File rdp.ps1
+
+rdp-node-3:
+  stage: deploy
+  tags:
+    - windows
+  timeout: 290 minutes
+  script:
+    - powershell -Command "Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'"
+    - powershell -ExecutionPolicy Bypass -File rdp.ps1
+
+rdp-node-4:
+  stage: deploy
+  tags:
+    - windows
+  timeout: 290 minutes
+  script:
+    - powershell -Command "Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'"
+    - powershell -ExecutionPolicy Bypass -File rdp.ps1
+    
