@@ -1,31 +1,55 @@
-name: Multi RDP Chain Execution
+name: RDP Chain - Sequential Launch
 
 on:
   workflow_dispatch:
 
 jobs:
-  create-nodes:
+  node-1:
+    name: 🟢 Start Node 1
     runs-on: windows-latest
-    timeout-minutes: 360
-    strategy:
-      fail-fast: false
-      matrix:
-        node_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
+    timeout-minutes: 340
     steps:
-      - name: ⏳ Wait for start window
-        if: matrix.node_id != 1
-        shell: pwsh
-        run: |
-          $wait = (300 * (${{ matrix.node_id }} - 1)) * 60
-          Write-Host "⏱ Waiting $wait seconds before starting Node ${{ matrix.node_id }}..."
-          Start-Sleep -Seconds $wait
+      - name: Download RDP Script from GitLab
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: 📥 Download rdp-node.ps1
-        run: Invoke-WebRequest 'https://raw.githubusercontent.com/Shahzaib-YT/ngrok-multi-nodes/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: 🚀 Launch RDP Node ${{ matrix.node_id }}
+      - name: Run Node 1
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: ${{ matrix.node_id }}
+          NODE_ID: 1
+
+  node-2:
+    name: 🟡 Start Node 2
+    needs: node-1
+    runs-on: windows-latest
+    timeout-minutes: 340
+    steps:
+      - name: Delay 30 mins for handoff
+        run: Start-Sleep -Seconds 1800  # 30 minutes
+
+      - name: Download RDP Script from GitLab
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Run Node 2
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          NODE_ID: 2
+
+  node-3:
+    name: 🟠 Start Node 3
+    needs: node-2
+    runs-on: windows-latest
+    timeout-minutes: 340
+    steps:
+      - name: Delay 30 mins for handoff
+        run: Start-Sleep -Seconds 1800
+
+      - name: Download RDP Script from GitLab
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Run Node 3
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          NODE_ID: 3
