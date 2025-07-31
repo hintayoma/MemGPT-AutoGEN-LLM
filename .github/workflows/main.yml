@@ -1,81 +1,31 @@
-name: Multi -1st Attempt
+name: Multi RDP Chain Execution
 
 on:
   workflow_dispatch:
 
 jobs:
-  rdp-node-1:
+  create-nodes:
     runs-on: windows-latest
-    timeout-minutes: 290
-    steps:
-      - name: Download rdp-node.ps1
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        node_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-      - name: Random delay before execution
+    steps:
+      - name: ⏳ Wait for start window
+        if: matrix.node_id != 1
         shell: pwsh
         run: |
-          $delay = Get-Random -Minimum 15 -Maximum 120
-          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 1..."
-          Start-Sleep -Seconds $delay
+          $wait = (300 * (${{ matrix.node_id }} - 1)) * 60
+          Write-Host "⏱ Waiting $wait seconds before starting Node ${{ matrix.node_id }}..."
+          Start-Sleep -Seconds $wait
 
-      - name: Execute RDP Node 1
+      - name: 📥 Download rdp-node.ps1
+        run: Invoke-WebRequest 'https://raw.githubusercontent.com/Shahzaib-YT/ngrok-multi-nodes/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: 🚀 Launch RDP Node ${{ matrix.node_id }}
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  rdp-node-2:
-    runs-on: windows-latest
-    timeout-minutes: 290
-    steps:
-      - name: Download rdp-node.ps1
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Random delay before execution
-        shell: pwsh
-        run: |
-          $delay = Get-Random -Minimum 15 -Maximum 120
-          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 2..."
-          Start-Sleep -Seconds $delay
-
-      - name: Execute RDP Node 2
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  rdp-node-3:
-    runs-on: windows-latest
-    timeout-minutes: 290
-    steps:
-      - name: Download rdp-node.ps1
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Random delay before execution
-        shell: pwsh
-        run: |
-          $delay = Get-Random -Minimum 15 -Maximum 120
-          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 3..."
-          Start-Sleep -Seconds $delay
-
-      - name: Execute RDP Node 3
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  rdp-node-4:
-    runs-on: windows-latest
-    timeout-minutes: 290
-    steps:
-      - name: Download rdp-node.ps1
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Random delay before execution
-        shell: pwsh
-        run: |
-          $delay = Get-Random -Minimum 15 -Maximum 120
-          Write-Host "🕒 Delaying $delay seconds before starting RDP Node 4..."
-          Start-Sleep -Seconds $delay
-
-      - name: Execute RDP Node 4
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          NODE_ID: ${{ matrix.node_id }}
