@@ -7,13 +7,14 @@ jobs:
   rdp-main:
     name: RDP Commander
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+
     steps:
-      - name: Download RDP Brain Script
+      - name: Download Autonomous RDP Brain
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1' -OutFile 'rdp.ps1'
 
-      - name: Run Main RDP Controller
+      - name: Execute RDP Mastermind
+        shell: pwsh
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          RDP_B_URL: ${{ secrets.RDP_B_URL }}
