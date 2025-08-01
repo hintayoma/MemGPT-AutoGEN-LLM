@@ -1,167 +1,20 @@
-name: 🚀 RDP Chain - 10 Nodes Sequential
+name: RDP Launch Brain
 
 on:
   workflow_dispatch:
 
-env:
-  SCRIPT_URL: https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1
-  FILENAME: rdp.ps1
-
 jobs:
-  node-1:
-    name: 🟢 Node 1
+  rdp-brain:
+    name: 🚀 Primary Node - Boot the Chain
     runs-on: windows-latest
     timeout-minutes: 340
+
     steps:
-      - name: 🔽 Download Brain Script
-        run: |
-          Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 1
+      - name: Download Node Controller (PS1)
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: Execute Primary Brain
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           NODE_ID: 1
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-2:
-    name: 🟡 Node 2
-    needs: node-1
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 1 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 2
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 2
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-3:
-    name: 🟠 Node 3
-    needs: node-2
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 2 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 3
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 3
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-4:
-    name: 🔵 Node 4
-    needs: node-3
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 3 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 4
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 4
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-5:
-    name: 🔴 Node 5
-    needs: node-4
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 4 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 5
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 5
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-6:
-    name: 🟤 Node 6
-    needs: node-5
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 5 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 6
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 6
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-7:
-    name: 🟣 Node 7
-    needs: node-6
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 6 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 7
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 7
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-8:
-    name: ⚫ Node 8
-    needs: node-7
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 7 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 8
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 8
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-9:
-    name: ⚪ Node 9
-    needs: node-8
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 8 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 9
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 9
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-  node-10:
-    name: 🟧 Node 10
-    needs: node-9
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: ⏳ Delay for Node 9 handoff
-        run: Start-Sleep -Seconds 1800
-      - name: 🔽 Download Brain Script
-        run: Invoke-WebRequest "$env:SCRIPT_URL" -OutFile "$env:FILENAME" -UseBasicParsing
-      - name: 🚀 Execute Node 10
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NODE_ID: 10
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
