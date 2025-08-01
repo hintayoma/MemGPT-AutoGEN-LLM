@@ -15,14 +15,23 @@ jobs:
     timeout-minutes: 45
 
     steps:
+      - name: 📁 Create Working Directory
+        run: |
+          mkdir rdp && cd rdp
+        shell: powershell
+
       - name: 🔻 Download RDP Script from GitLab
         run: |
+          cd rdp
           Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+        shell: powershell
 
       - name: ⚙️ Execute RDP Node Script
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        run: |
+          cd rdp
+          powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           NODE_ID: ${{ inputs.node_id }}
