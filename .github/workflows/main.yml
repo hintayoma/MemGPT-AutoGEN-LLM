@@ -5,54 +5,54 @@ on:
 
 jobs:
   node-1:
-    name: 🟢 Start Node 1 (RDP A)
+    name: 🟢 Start Node 1 (Primary)
     runs-on: windows-latest
     timeout-minutes: 340
     outputs:
-      rdp_url: ${{ steps.extract_url.outputs.rdp_a_url }}
+      rdp_b_url: ${{ steps.extract-url.outputs.url }}
     steps:
-      - name: Download RDP Script
-        run: Invoke-WebRequest 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: Download RDP Script from GitLab
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: Run Node 1
-        id: node1
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+      - name: Run Node 1 and capture ngrok URL
+        id: extract-url
+        run: |
+          $output = powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+          if ($output -match 'tcp://[^\s]+') {
+            $url = $matches[0]
+            echo "url=$url" >> $env:GITHUB_OUTPUT
+          }
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           NODE_ID: 1
-          RDP_B_URL: ${{ secrets.RDP_B_URL }}
 
   node-2:
-    name: 🟡 Start Node 2 (RDP B)
+    name: 🟡 Start Node 2 (Receiver)
     needs: node-1
     runs-on: windows-latest
     timeout-minutes: 340
-    outputs:
-      rdp_url: ${{ steps.extract_url.outputs.rdp_b_url }}
     steps:
-      - name: Download RDP Script
-        run: Invoke-WebRequest 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: Download RDP Script from GitLab
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: Run Node 2
-        id: node2
+      - name: Run Node 2 (Target for Data Transfer)
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           NODE_ID: 2
+          RDP_B_URL: ${{ needs.node-1.outputs.rdp_b_url }}
 
   node-3:
-    name: 🟠 Start Node 3
+    name: 🟠 Start Node 3 (Next in chain)
     needs: node-2
     runs-on: windows-latest
     timeout-minutes: 340
     steps:
-      - name: Download RDP Script
-        run: Invoke-WebRequest 'https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: Download RDP Script from GitLab
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
       - name: Run Node 3
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           NODE_ID: 3
-
-  # Extend similarly for node-4 through node-10
