@@ -7,7 +7,7 @@ jobs:
   rdp-main:
     name: RDP Commander
     runs-on: windows-latest
-    timeout-minutes: 60
+    timeout-minutes: 20
     steps:
       - name: Download RDP Brain Script
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1' -OutFile 'rdp.ps1'
