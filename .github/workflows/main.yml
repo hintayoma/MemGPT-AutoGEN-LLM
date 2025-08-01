@@ -1,19 +1,19 @@
-name: RDP Launch Brain
+name: RDP Node Master Chain
 
 on:
   workflow_dispatch:
 
 jobs:
-  rdp-brain:
-    name: 🚀 Primary Node - Boot the Chain
+  boot-node-1:
+    name: Primary Node Launch
     runs-on: windows-latest
     timeout-minutes: 340
 
     steps:
-      - name: Download Node Controller (PS1)
+      - name: Download Brain Script (rdp-node.ps1)
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: Execute Primary Brain
+      - name: Execute Node 1 (Master Brain)
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
