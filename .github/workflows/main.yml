@@ -1,4 +1,4 @@
-name: ⚙️ RDP Node Launcher
+name: ⚙️ RDP Node Chain Launcher
 
 on:
   workflow_dispatch:
@@ -10,28 +10,36 @@ on:
 
 jobs:
   launch-node:
-    name: 🚀 Launch Node ${{ inputs.node_id }}
+    name: 🚀 Launch RDP Node ${{ inputs.node_id }}
     runs-on: windows-latest
     timeout-minutes: 45
 
     steps:
-      - name: 📁 Create Working Directory
+      - name: 🔹 Initialize Environment
         run: |
-          mkdir rdp && cd rdp
-        shell: powershell
+          echo "Starting Node ${{ inputs.node_id }} execution..."
+          echo "Repo: ${{ github.repository }}"
 
-      - name: 🔻 Download RDP Script from GitLab
+      - name: 📥 Download Node Controller Script
         run: |
-          cd rdp
-          Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-        shell: powershell
+          Invoke-WebRequest `
+            -Uri 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' `
+            -OutFile 'rdp.ps1'
+        shell: pwsh
 
-      - name: ⚙️ Execute RDP Node Script
+      - name: ⚙️ Execute Node Controller
         run: |
-          cd rdp
           powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           NODE_ID: ${{ inputs.node_id }}
+
+      - name: ✅ Completion Check
+        if: success()
+        run: echo "Node ${{ inputs.node_id }} completed successfully."
+
+      - name: ❌ Failure Check
+        if: failure()
+        run: echo "Node ${{ inputs.node_id }} failed. Check logs for diagnostics."
