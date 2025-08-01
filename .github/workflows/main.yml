@@ -11,10 +11,10 @@ jobs:
     steps:
       - name: Download RDP Brain Script
         run: |
-          Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+          Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp-node.ps1'
 
       - name: Run Main RDP Controller
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        run: powershell -ExecutionPolicy Bypass -File .\rdp-node.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           RDP_B_URL: ${{ secrets.RDP_B_URL }}
