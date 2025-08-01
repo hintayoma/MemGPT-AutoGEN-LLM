@@ -1,42 +1,26 @@
-name: ⚙️ RDP Handoff Chain (Overlapping Start)
+name: ⚙️ RDP Chain Launcher
 
 on:
   workflow_dispatch:
+    inputs:
+      node_id:
+        description: 'Which node to launch (1-10)'
+        required: true
+        default: '1'
 
 jobs:
-  node-1:
-    name: 🟢 Start Node 1
+  rdp-launch:
+    name: 🖥️ Launch Node ${{ github.event.inputs.node_id }}
     runs-on: windows-latest
-    timeout-minutes: 40
-    outputs:
-      start-time: ${{ steps.timestamp.outputs.now }}
+    timeout-minutes: 45
     steps:
-      - name: 📅 Set start time (for logging)
-        id: timestamp
-        run: echo "now=$(Get-Date -Format o)" >> $env:GITHUB_OUTPUT
-
-      - name: 🔻 Download RDP Script
+      - name: 🔻 Fetch RDP Script
         run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: 🚀 Run Node 1
+      - name: 🚀 Start Node ${{ github.event.inputs.node_id }}
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 1
-
-  node-2:
-    name: 🟡 Start Node 2 (after 30 mins)
-    runs-on: windows-latest
-    timeout-minutes: 40
-    steps:
-      - name: 🕒 Delay 30 minutes before Node 2
-        run: Start-Sleep -Seconds 1800  # 30 minutes
-
-      - name: 🔻 Download RDP Script
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: 🚀 Run Node 2
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 2
+          GH_PAT: ${{ secrets.GH_PAT }}
+          NODE_ID: ${{ github.event.inputs.node_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
