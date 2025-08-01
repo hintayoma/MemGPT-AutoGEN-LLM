@@ -1,181 +1,32 @@
-name: RDP Chain - Sequential Launch (10 Nodes)
+name: RDP Chain Node
 
 on:
   workflow_dispatch:
+    inputs:
+      NGROK_AUTH_TOKEN:
+        description: 'Enter your Ngrok Auth Token'
+        required: true
+      NODE_ID:
+        description: 'Node number (e.g. 1, 2, 3...)'
+        required: true
 
 jobs:
-  node-1:
-    name: 🟢 Start Node 1
+  run-rdp-node:
+    name: Node ${{ inputs.NODE_ID }} - Deploy
     runs-on: windows-latest
-    timeout-minutes: 340
+    timeout-minutes: 290
+
     steps:
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+      - name: 🧠 Set variables
+        run: |
+          echo "NODE_ID=${{ inputs.NODE_ID }}" >> $env:GITHUB_ENV
+          echo "NGROK_AUTH_TOKEN=${{ inputs.NGROK_AUTH_TOKEN }}" >> $env:GITHUB_ENV
 
-      - name: Run Node 1
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 1
+      - name: 📥 Download PowerShell script
+        run: |
+          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp-node.ps1"
 
-  node-2:
-    name: 🟡 Start Node 2
-    needs: node-1
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 2
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 2
-
-  node-3:
-    name: 🟠 Start Node 3
-    needs: node-2
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 3
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 3
-
-  node-4:
-    name: 🔵 Start Node 4
-    needs: node-3
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 4
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 4
-
-  node-5:
-    name: 🔴 Start Node 5
-    needs: node-4
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 5
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 5
-
-  node-6:
-    name: 🟤 Start Node 6
-    needs: node-5
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 6
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 6
-
-  node-7:
-    name: 🟣 Start Node 7
-    needs: node-6
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 7
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 7
-
-  node-8:
-    name: ⚫ Start Node 8
-    needs: node-7
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 8
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 8
-
-  node-9:
-    name: ⚪ Start Node 9
-    needs: node-8
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 9
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 9
-
-  node-10:
-    name: 🟧 Start Node 10
-    needs: node-9
-    runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Delay 30 mins for handoff
-        run: Start-Sleep -Seconds 1800
-
-      - name: Download RDP Script from GitLab
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
-
-      - name: Run Node 10
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          NODE_ID: 10
+      - name: 🚀 Execute Node ${{ inputs.NODE_ID }}
+        shell: pwsh
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\rdp-node.ps1
