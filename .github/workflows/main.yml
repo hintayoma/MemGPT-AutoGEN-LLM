@@ -12,9 +12,9 @@ jobs:
   launch-node:
     name: 🚀 Launch RDP Node ${{ inputs.node_id }}
     runs-on: windows-latest
-    timeout-minutes: 45
+    timeout-minutes: 25
 
-    permissions:
+    permissions:  # Required for GITHUB_TOKEN to trigger workflows
       actions: write
       contents: read
 
