@@ -1,25 +1,28 @@
-name: 🧠 Autonomous RDP Chain
+name: ⚙️ RDP Node Launcher
 
 on:
   workflow_dispatch:
     inputs:
       node_id:
-        description: 'Start node (1)'
+        description: "Start from this Node ID"
         required: true
-        default: '1'
+        default: "1"
 
 jobs:
-  node-launch:
+  launch-node:
+    name: 🚀 Launch Node ${{ inputs.node_id }}
     runs-on: windows-latest
     timeout-minutes: 45
-    steps:
-      - name: 📥 Download Script
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: 🚀 Start Node ${{ github.event.inputs.node_id }}
+    steps:
+      - name: 🔻 Download RDP Script from GitLab
+        run: |
+          Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+
+      - name: ⚙️ Execute RDP Node Script
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
-          NODE_ID: ${{ github.event.inputs.node_id }}
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          NODE_ID: ${{ inputs.node_id }}
