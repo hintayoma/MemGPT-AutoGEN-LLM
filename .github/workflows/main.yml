@@ -1,28 +1,19 @@
-name: RDP Orchestration
+name: RDP Chain - Autonomous Launch
 
 on:
   workflow_dispatch:
-    inputs:
-      rdp_a_url:
-        description: 'Used internally by RDP B for syncing'
-        required: false
-        type: string
 
 jobs:
-  rdp:
+  rdp-main:
+    name: RDP Commander
     runs-on: windows-latest
-    timeout-minutes: 340
-    env:
-      NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_REPOSITORY: ${{ github.repository }}
-      RDP_B_URL: ${{ github.event.inputs.rdp_a_url || '' }}
+    timeout-minutes: 60
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Download RDP Brain Script
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1' -OutFile 'rdp.ps1'
 
-      - name: Download latest rdp.ps1
-        run: Invoke-WebRequest "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
-
-      - name: Execute rdp.ps1 brain
+      - name: Run Main RDP Controller
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          RDP_B_URL: ${{ secrets.RDP_B_URL }}
