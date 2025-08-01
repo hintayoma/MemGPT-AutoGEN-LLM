@@ -1,20 +1,42 @@
-name: RDP Chain - Autonomous Launch
+name: RDP Chain - Sequential Launch
 
 on:
   workflow_dispatch:
 
 jobs:
-  rdp-main:
-    name: RDP Commander
+  node-1:
+    name: 🟢 Start Node 1 (RDP A)
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 340
     steps:
-      - name: Download RDP Brain Script
+      - name: 🔽 Download RDP Script
         run: |
-          Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp-node.ps1'
+          Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+        shell: pwsh
 
-      - name: Run Main RDP Controller
-        run: powershell -ExecutionPolicy Bypass -File .\rdp-node.ps1
+      - name: 🚀 Run Node 1 (RDP A)
+        id: run_node1
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        shell: pwsh
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          NODE_ID: 1
           RDP_B_URL: ${{ secrets.RDP_B_URL }}
+
+      - name: 🧾 Upload RDP Tunnel Info (Optional)
+        if: always()
+        run: |
+          $path = "$Env:USERPROFILE\Desktop\RDP_A_TUNNEL.txt"
+          if (Test-Path $path) {
+            Copy-Item $path rdp_a_url.txt
+          } else {
+            "No tunnel file found" | Out-File rdp_a_url.txt
+          }
+        shell: pwsh
+
+      - name: ☁️ Save Tunnel Info as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RDP-A-Tunnel
+          path: rdp_a_url.txt
