@@ -14,7 +14,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 25
 
-    permissions:  # Required for GITHUB_TOKEN to trigger workflows
+    permissions:
       actions: write
       contents: read
 
@@ -40,7 +40,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           NODE_ID: ${{ inputs.node_id }}
-          MAX_NODE_COUNT: "10"
 
       - name: ✅ Completion Check
         if: success()
