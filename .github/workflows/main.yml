@@ -18,7 +18,7 @@ jobs:
       - name: 🔻 Download RDP Brain Script
         run: |
           Invoke-WebRequest `
-            -Uri "https://gitlab.com/Shahzaib-YT/ngrok-github/-/raw/main/rdp.ps1" `
+            -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1" `
             -OutFile "rdp.ps1"
 
       - name: 🧠 Execute Node Logic
