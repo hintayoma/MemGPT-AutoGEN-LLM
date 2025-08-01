@@ -10,13 +10,11 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Download Upgraded RDP Brain
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1' -OutFile 'rdp.ps1'
+      - name: Download RDP Brain Script
+        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
 
-      - name: Launch Main RDP Node
-        shell: pwsh
-        run: |
-          powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+      - name: Execute RDP Commander
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
           RDP_B_URL: ${{ secrets.RDP_B_URL }}
