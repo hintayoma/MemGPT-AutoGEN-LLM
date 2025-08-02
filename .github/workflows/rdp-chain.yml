@@ -1,17 +1,17 @@
-name: ⛓️ RDP Node Chain
+name: 🖥️ RDP Node Chain
 
 on:
   workflow_dispatch:
     inputs:
       NODE:
-        description: 'Node number to launch (1 to 20)'
+        description: "Enter Node ID (1-20)"
         required: true
-        default: '1'
+        default: "1"
 
 jobs:
-  launch-rdp:
+  rdp-node:
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 16
 
     env:
       NODE_ID: ${{ github.event.inputs.NODE }}
@@ -19,39 +19,27 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: ⬇️ Checkout repository
+      - name: 📁 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⬇️ Download previous tunnel (if not node 1)
-        if: ${{ github.event.inputs.NODE != '1' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: tunnel-${{ github.event.inputs.NODE }}
-          path: ${{ github.workspace }}
-
-      - name: ⬇️ Download rdp.ps1 Script
-        run: |
-          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
-        shell: pwsh
-
-      - name: ➕ Set Previous Node ID
-        if: ${{ github.event.inputs.NODE != '1' }}
+      - name: ⚙️ Setup Previous Node ID
+        if: ${{ fromJSON(github.event.inputs.NODE) > 1 }}
         run: |
           $prev = [int]${{ github.event.inputs.NODE }} - 1
           echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: 📁 Create Data Folder
-        run: mkdir "$env:USERPROFILE\Desktop\Data"
+      - name: 📦 Create Data Directory
+        run: |
+          mkdir "$env:USERPROFILE\Desktop\Data"
         shell: pwsh
 
-      - name: 🟢 Start RDP Node
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+      - name: ⬇️ Download Latest rdp.ps1 Script
+        run: |
+          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1" -OutFile "rdp.ps1"
         shell: pwsh
 
-      - name: 📤 Upload Tunnel URL
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tunnel-${{ github.event.inputs.NODE }}
-          path: $env:USERPROFILE\Desktop\tunnel-${{ github.event.inputs.NODE }}.txt
+      - name: 🚀 Execute rdp.ps1
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        shell: pwsh
