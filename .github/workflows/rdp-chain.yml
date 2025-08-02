@@ -1,26 +1,45 @@
-name: RDP Chain - Primary Trigger
+name: RDP Node Chain
 
 on:
   workflow_dispatch:
     inputs:
       NODE:
-        description: 'Starting Node ID'
+        description: 'Node ID'
         required: true
-        default: '1'
 
 jobs:
-  launch:
-    name: 🚀 Launch Node ${{ github.event.inputs.NODE }}
+  node:
     runs-on: windows-latest
-    timeout-minutes: 340
-    steps:
-      - name: Download RDP Script
-        run: Invoke-WebRequest 'https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1' -OutFile 'rdp.ps1'
+    timeout-minutes: 20
 
-      - name: Execute RDP Node
-        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-        env:
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_ID: ${{ github.event.inputs.NODE }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+    steps:
+    - name: ⬇️ Checkout repo
+      uses: actions/checkout@v4
+
+    - name: 🔁 Set Node ID
+      run: echo "NODE_ID=${{ github.event.inputs.NODE }}" >> $env:GITHUB_ENV
+
+    - name: 🔐 Set secrets
+      run: |
+        echo "NGROK_AUTH_TOKEN=${{ secrets.NGROK_AUTH_TOKEN }}" >> $env:GITHUB_ENV
+        echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $env:GITHUB_ENV
+
+    - name: 📁 Create Data Folder
+      run: mkdir "$env:USERPROFILE\Desktop\Data"
+
+    - name: 📥 Download previous tunnel if not Node 1
+      if: ${{ github.event.inputs.NODE != '1' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: tunnel-${{ github.event.inputs.NODE | fromJson | sub(1) }}
+        path: ${{ env.USERPROFILE }}\Desktop
+
+    - name: 🚀 Run RDP Setup
+      run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+
+    - name: 📤 Upload tunnel artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tunnel-${{ github.event.inputs.NODE }}
+        path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ github.event.inputs.NODE }}.txt
+        retention-days: 1
