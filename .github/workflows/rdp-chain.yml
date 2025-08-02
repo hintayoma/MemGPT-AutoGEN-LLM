@@ -1,44 +1,42 @@
-name: RDP Node Chain
-
+name: ⚙️ RDP Node Chain
 on:
   workflow_dispatch:
     inputs:
       NODE:
-        description: "Node ID (e.g. 1, 2, 3...)"
         required: true
-        default: "1"
+        type: string
 
 jobs:
   build:
-    name: Initialize RDP Node
     runs-on: windows-latest
-    timeout-minutes: 25
+    env:
+      NODE_ID: ${{ github.event.inputs.NODE }}
+      NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: 🧠 Setup Env Vars
-        run: |
-          $node = "${{ github.event.inputs.NODE }}"
-          echo "NODE_ID=$node" >> $env:GITHUB_ENV
-          if ([int]$node -gt 1) {
-            $prev = [int]$node - 1
-            echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
-          }
-        shell: pwsh
-
-      - name: 📂 Create Data Directory
-        run: mkdir "$env:USERPROFILE\Desktop\Data"
-        shell: pwsh
-
       - name: ⬇️ Download rdp.ps1 Script
         run: |
           Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
         shell: pwsh
 
-      - name: 🚀 Execute RDP Node Setup
+      - name: 🗂 Create Data Folder
+        run: mkdir "$env:USERPROFILE\Desktop\Data"
+        shell: pwsh
+
+      - name: ⬇️ Download Previous Tunnel (if exists)
+        if: ${{ github.event.inputs.NODE != '1' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: tunnel-${{ github.event.inputs.NODE }}
+          path: .
+
+      - name: ▶️ Run PowerShell RDP Script
         run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
         shell: pwsh
-        env:
-          NODE_ID: ${{ env.NODE_ID }}
-          PREV_NODE_ID: ${{ env.PREV_NODE_ID }}
-          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⬆️ Upload Tunnel Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tunnel-${{ github.event.inputs.NODE }}
+          path: $env:USERPROFILE\Desktop\tunnel-${{ github.event.inputs.NODE }}.txt
