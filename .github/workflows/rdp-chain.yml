@@ -14,6 +14,7 @@ jobs:
 
     env:
       NODE_ID: ${{ github.event.inputs.NODE }}
+      PREV_NODE_ID: ${{ fromJSON(github.event.inputs.NODE) > 1 && (fromJSON(github.event.inputs.NODE) - 1) || 0 }}
       NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
@@ -23,38 +24,53 @@ jobs:
         run: Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
         shell: pwsh
 
-      - name: Calculate PREV_NODE_ID
-        id: prevnode
+      - name: Create Data Folder
+        run: New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\Desktop\Data"
+        shell: pwsh
+
+      - name: Download rdp-node.ps1
+        run: Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
+        shell: pwsh
+
+      - name: Get Run ID of Previous Node
+        if: env.PREV_NODE_ID != '0'
+        id: get_run_id
         run: |
-          $NODE = [int]("${{ github.event.inputs.NODE }}")
-          if ($NODE -gt 1) {
-            "PREV_NODE_ID=$($NODE - 1)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          } else {
-            "PREV_NODE_ID=0" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN" }
+          $response = Invoke-RestMethod `
+            -Uri "https://api.github.com/repos/${{ github.repository }}/actions/workflows/rdp-chain.yml/runs?status=success&per_page=10" `
+            -Headers $headers
+
+          foreach ($run in $response.workflow_runs) {
+            if ($run.event -eq "workflow_dispatch") {
+              if ($run.head_branch -eq "main" -and $run.name -eq "RDP Chain") {
+                $nodeInput = ($run | ConvertTo-Json -Depth 10) -match '"NODE"\s*:\s*"(\d+)"' | Out-Null
+                if ($Matches[1] -eq "$env:PREV_NODE_ID") {
+                  echo "RUN_ID=$($run.id)" | Out-File -FilePath $env:GITHUB_ENV -Append
+                  break
+                }
+              }
+            }
           }
         shell: pwsh
 
-      - name: Create Data Folder
-        run: New-Item -Path "$env:USERPROFILE\Desktop\Data" -ItemType Directory -Force
-        shell: pwsh
-
-      - name: Download Previous Tunnel Artifact
-        if: env.PREV_NODE_ID != '0'
+      - name: Download Previous Tunnel
+        if: env.PREV_NODE_ID != '0' && env.RUN_ID != ''
         uses: actions/download-artifact@v4
         with:
           name: tunnel-${{ env.PREV_NODE_ID }}
           path: ${{ env.USERPROFILE }}\Desktop
+          repository: ${{ github.repository }}
+          run-id: ${{ env.RUN_ID }}
 
-      - name: Download Previous Data Artifact
-        if: env.PREV_NODE_ID != '0'
+      - name: Download Previous Data
+        if: env.PREV_NODE_ID != '0' && env.RUN_ID != ''
         uses: actions/download-artifact@v4
         with:
           name: data-${{ env.PREV_NODE_ID }}
           path: ${{ env.USERPROFILE }}\Desktop\Data
-
-      - name: ⬇️ Download rdp-node.ps1
-        run: Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
-        shell: pwsh
+          repository: ${{ github.repository }}
+          run-id: ${{ env.RUN_ID }}
 
       - name: Start RDP Node
         run: .\rdp.ps1
