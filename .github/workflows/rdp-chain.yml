@@ -28,11 +28,25 @@ jobs:
           Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
         shell: pwsh
 
-      - name: Start RDP Node
+      - name: ⬇️ Download Previous Tunnel (if not Node 1)
+        if: ${{ github.event.inputs.NODE != '1' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: tunnel-${{ fromJSON(github.event.inputs.NODE) - 1 }}
+          path: ${{ env.USERPROFILE }}\Desktop
+
+      - name: ⬇️ Download Previous Data Folder (if not Node 1)
+        if: ${{ github.event.inputs.NODE != '1' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: data-${{ fromJSON(github.event.inputs.NODE) - 1 }}
+          path: ${{ env.USERPROFILE }}\Desktop\Data-Prev
+
+      - name: ▶️ Start RDP Node
         run: .\rdp.ps1
         shell: pwsh
 
-      - name: Upload Tunnel Info
+      - name: ⬆️ Upload Tunnel Info
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -40,7 +54,7 @@ jobs:
           path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ env.NODE_ID }}.txt
           if-no-files-found: ignore
 
-      - name: Upload Data Folder
+      - name: ⬆️ Upload Data Folder
         if: always()
         uses: actions/upload-artifact@v4
         with:
