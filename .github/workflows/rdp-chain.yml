@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       NODE:
-        description: 'Node ID'
+        description: 'Node ID (e.g., 1 - 20)'
         required: true
 
 jobs:
@@ -13,33 +13,40 @@ jobs:
     timeout-minutes: 20
 
     steps:
-    - name: ⬇️ Checkout repo
+    - name: ⬇️ Checkout repository
       uses: actions/checkout@v4
 
-    - name: 🔁 Set Node ID
-      run: echo "NODE_ID=${{ github.event.inputs.NODE }}" >> $env:GITHUB_ENV
-
-    - name: 🔐 Set secrets
+    - name: 🧠 Set environment variables
       run: |
+        echo "NODE_ID=${{ github.event.inputs.NODE }}" >> $env:GITHUB_ENV
         echo "NGROK_AUTH_TOKEN=${{ secrets.NGROK_AUTH_TOKEN }}" >> $env:GITHUB_ENV
         echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $env:GITHUB_ENV
 
-    - name: 📁 Create Data Folder
-      run: mkdir "$env:USERPROFILE\Desktop\Data"
+    - name: 🧮 Calculate previous node ID
+      shell: pwsh
+      run: |
+        $node = [int]("${{ github.event.inputs.NODE }}")
+        if ($node -gt 1) {
+          $prev = $node - 1
+          echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
+        }
 
-    - name: 📥 Download previous tunnel if not Node 1
-      if: ${{ github.event.inputs.NODE != '1' }}
+    - name: 📥 Download previous tunnel artifact
+      if: env.PREV_NODE_ID != ''
       uses: actions/download-artifact@v4
       with:
-        name: tunnel-${{ github.event.inputs.NODE | fromJson | sub(1) }}
+        name: tunnel-${{ env.PREV_NODE_ID }}
         path: ${{ env.USERPROFILE }}\Desktop
 
-    - name: 🚀 Run RDP Setup
+    - name: 🛠 Create Data Folder
+      run: mkdir "$env:USERPROFILE\Desktop\Data"
+
+    - name: 🚀 Execute RDP Node Setup
       run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
 
-    - name: 📤 Upload tunnel artifact
+    - name: 📤 Upload current tunnel artifact
       uses: actions/upload-artifact@v4
       with:
-        name: tunnel-${{ github.event.inputs.NODE }}
-        path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ github.event.inputs.NODE }}.txt
+        name: tunnel-${{ env.NODE_ID }}
+        path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ env.NODE_ID }}.txt
         retention-days: 1
