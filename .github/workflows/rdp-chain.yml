@@ -3,7 +3,7 @@ name: RDP Chain
 on:
   workflow_dispatch:
     inputs:
-      NODE: 1
+      NODE: 
         description: "Node number to launch (e.g., 1)"
         required: true
 
