@@ -28,18 +28,25 @@ jobs:
           Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
         shell: pwsh
 
+      - name: Calculate Previous Node ID
+        id: calc
+        run: |
+          $prev = [int]("${{ github.event.inputs.NODE }}") - 1
+          echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
+        shell: pwsh
+
       - name: ⬇️ Download Previous Tunnel (if not Node 1)
-        if: ${{ github.event.inputs.NODE != '1' }}
+        if: ${{ env.PREV_NODE_ID != '0' }}
         uses: actions/download-artifact@v4
         with:
-          name: tunnel-${{ fromJSON(github.event.inputs.NODE) - 1 }}
+          name: tunnel-${{ env.PREV_NODE_ID }}
           path: ${{ env.USERPROFILE }}\Desktop
 
       - name: ⬇️ Download Previous Data Folder (if not Node 1)
-        if: ${{ github.event.inputs.NODE != '1' }}
+        if: ${{ env.PREV_NODE_ID != '0' }}
         uses: actions/download-artifact@v4
         with:
-          name: data-${{ fromJSON(github.event.inputs.NODE) - 1 }}
+          name: data-${{ env.PREV_NODE_ID }}
           path: ${{ env.USERPROFILE }}\Desktop\Data-Prev
 
       - name: ▶️ Start RDP Node
