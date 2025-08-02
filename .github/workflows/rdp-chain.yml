@@ -19,17 +19,20 @@ jobs:
       GITHUB_REPOSITORY: ${{ github.repository }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
       - name: Set Execution Policy
         run: Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        shell: pwsh
+
+      - name: ⬇️ Download rdp-node.ps1
+        run: |
+          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
+        shell: pwsh
 
       - name: Start RDP Node
-        shell: pwsh
         run: .\rdp.ps1
+        shell: pwsh
 
-      - name: Upload tunnel info
+      - name: Upload Tunnel Info
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -37,7 +40,7 @@ jobs:
           path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ env.NODE_ID }}.txt
           if-no-files-found: ignore
 
-      - name: Upload Data folder
+      - name: Upload Data Folder
         if: always()
         uses: actions/upload-artifact@v4
         with:
