@@ -3,7 +3,7 @@ name: RDP Chain
 on:
   workflow_dispatch:
     inputs:
-      NODE:
+      NODE: 1
         description: "Node number to launch (e.g., 1)"
         required: true
 
@@ -48,6 +48,15 @@ jobs:
         with:
           name: data-${{ env.PREV_NODE_ID }}
           path: ${{ env.USERPROFILE }}\Desktop\Data-Prev
+
+      - name: 📁 Create Data Folder and Copy D Drive Files
+        run: |
+          $dataPath = "$env:USERPROFILE\Desktop\Data"
+          New-Item -Path $dataPath -ItemType Directory -Force | Out-Null
+          if (Test-Path "D:\") {
+            Copy-Item -Path "D:\*" -Destination $dataPath -Recurse -Force -ErrorAction SilentlyContinue
+          }
+        shell: pwsh
 
       - name: ▶️ Start RDP Node
         run: .\rdp.ps1
