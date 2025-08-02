@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Download Self-Contained RDP Script
         run: |
-          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1" -OutFile "rdp.ps1"
+          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
         shell: pwsh
 
       - name: Run RDP Node Script
