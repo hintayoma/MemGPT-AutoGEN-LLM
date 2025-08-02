@@ -4,49 +4,41 @@ on:
   workflow_dispatch:
     inputs:
       NODE:
-        description: 'Node ID (e.g., 1 - 20)'
+        description: "Node ID (e.g. 1, 2, 3...)"
         required: true
+        default: "1"
 
 jobs:
-  node:
+  build:
+    name: Initialize RDP Node
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
-    - name: ⬇️ Checkout repository
-      uses: actions/checkout@v4
+      - name: 🧠 Setup Env Vars
+        run: |
+          $node = "${{ github.event.inputs.NODE }}"
+          echo "NODE_ID=$node" >> $env:GITHUB_ENV
+          if ([int]$node -gt 1) {
+            $prev = [int]$node - 1
+            echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
+          }
+        shell: pwsh
 
-    - name: 🧠 Set environment variables
-      run: |
-        echo "NODE_ID=${{ github.event.inputs.NODE }}" >> $env:GITHUB_ENV
-        echo "NGROK_AUTH_TOKEN=${{ secrets.NGROK_AUTH_TOKEN }}" >> $env:GITHUB_ENV
-        echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $env:GITHUB_ENV
+      - name: 📂 Create Data Directory
+        run: mkdir "$env:USERPROFILE\Desktop\Data"
+        shell: pwsh
 
-    - name: 🧮 Calculate previous node ID
-      shell: pwsh
-      run: |
-        $node = [int]("${{ github.event.inputs.NODE }}")
-        if ($node -gt 1) {
-          $prev = $node - 1
-          echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
-        }
+      - name: ⬇️ Download rdp.ps1 Script
+        run: |
+          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1" -OutFile "rdp.ps1"
+        shell: pwsh
 
-    - name: 📥 Download previous tunnel artifact
-      if: env.PREV_NODE_ID != ''
-      uses: actions/download-artifact@v4
-      with:
-        name: tunnel-${{ env.PREV_NODE_ID }}
-        path: ${{ env.USERPROFILE }}\Desktop
-
-    - name: 🛠 Create Data Folder
-      run: mkdir "$env:USERPROFILE\Desktop\Data"
-
-    - name: 🚀 Execute RDP Node Setup
-      run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
-
-    - name: 📤 Upload current tunnel artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: tunnel-${{ env.NODE_ID }}
-        path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ env.NODE_ID }}.txt
-        retention-days: 1
+      - name: 🚀 Execute RDP Node Setup
+        run: powershell -ExecutionPolicy Bypass -File .\rdp.ps1
+        shell: pwsh
+        env:
+          NODE_ID: ${{ env.NODE_ID }}
+          PREV_NODE_ID: ${{ env.PREV_NODE_ID }}
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
