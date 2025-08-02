@@ -19,57 +19,11 @@ jobs:
       GITHUB_REPOSITORY: ${{ github.repository }}
 
     steps:
-      - name: Set Execution Policy
-        run: Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-        shell: pwsh
-
-      - name: Calculate Previous Node
-        id: calc
+      - name: Download Self-Contained RDP Script
         run: |
-          $node = [int]"${{ github.event.inputs.NODE }}"
-          $prev = if ($node -gt 1) { $node - 1 } else { 0 }
-          echo "PREV_NODE=$prev" >> $env:GITHUB_ENV
+          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp.ps1" -OutFile "rdp.ps1"
         shell: pwsh
 
-      - name: Ensure Desktop Data Folder Exists
-        run: |
-          $dataFolder = "$env:USERPROFILE\Desktop\Data"
-          if (-not (Test-Path $dataFolder)) {
-            New-Item -Path $dataFolder -ItemType Directory | Out-Null
-          }
-        shell: pwsh
-
-      - name: Download Previous Tunnel Artifact
-        if: ${{ env.PREV_NODE != '0' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: tunnel-${{ env.PREV_NODE }}
-          path: ${{ env.USERPROFILE }}\Desktop
-          repository: ${{ github.repository }}
-          merge-multiple: false
-          # Note: assumes you're triggering from same repo. Cross-repo needs PAT and permissions.
-
-      - name: Download rdp-node.ps1
-        run: |
-          Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
-        shell: pwsh
-
-      - name: Run Node Script
+      - name: Run RDP Node Script
         run: .\rdp.ps1
         shell: pwsh
-
-      - name: Upload Tunnel Info
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: tunnel-${{ env.NODE_ID }}
-          path: ${{ env.USERPROFILE }}\Desktop\tunnel-${{ env.NODE_ID }}.txt
-          if-no-files-found: ignore
-
-      - name: Upload Data Folder
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: data-${{ env.NODE_ID }}
-          path: ${{ env.USERPROFILE }}\Desktop\Data
-          if-no-files-found: ignore
