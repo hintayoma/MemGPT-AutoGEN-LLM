@@ -15,6 +15,16 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: 🧮 Calculate Previous Node
+        id: calc
+        shell: pwsh
+        run: |
+          $node = [int] "${{ github.event.inputs.NODE }}"
+          if ($node -gt 1) {
+            $prev = $node - 1
+            echo "PREV_NODE_ID=$prev" >> $env:GITHUB_ENV
+          }
+
       - name: ⬇️ Download rdp.ps1 Script
         run: |
           Invoke-WebRequest -Uri "https://gitlab.com/Shahzaib-YT/ngrok-multi-nodes/-/raw/main/rdp-node.ps1" -OutFile "rdp.ps1"
@@ -25,10 +35,10 @@ jobs:
         shell: pwsh
 
       - name: ⬇️ Download Previous Tunnel (if exists)
-        if: ${{ github.event.inputs.NODE != '1' }}
+        if: env.PREV_NODE_ID != ''
         uses: actions/download-artifact@v4
         with:
-          name: tunnel-${{ github.event.inputs.NODE | fromJSON | sub(1) }}
+          name: tunnel-${{ env.PREV_NODE_ID }}
           path: .
 
       - name: ▶️ Run PowerShell RDP Script
